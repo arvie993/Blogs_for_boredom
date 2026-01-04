@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bored? Here's What To Do!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+<div class="wrapper">
+    <div class="top">
+        <div class="title">
+            <h1>🎯 Things To Do When You're Bored</h1>
+            <p class="subtitle">{{ total_activities }} activities to explore</p>
+        </div>
+    </div>
+    
+    <!-- Categories using Jinja2 loop -->
+    <div class="categories">
+        {% for category in categories %}
+        {% if category == "All" %}
+        <span class="category-btn {% if loop.first %}active{% endif %}" data-filter="{{ category }}">
+            {{ category }}
+        </span>
+        {% else %}
+        <a href="{{ url_for('category_page', category_name=category) }}" class="category-btn" data-filter="{{ category }}">
+            {{ category }}
+        </a>
+        {% endif %}
+        {% endfor %}
+        <a href="{{ url_for('random_activity') }}" class="category-btn random-btn">
+            🎲 Random
+        </a>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-number" id="visible-count">{{ total_activities }}</span>
+            <span class="stat-label">Showing</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ featured_posts | length }}</span>
+            <span class="stat-label">Featured</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">{{ categories | length - 1 }}</span>
+            <span class="stat-label">Categories</span>
+        </div>
+    </div>
+
+    <!-- Featured Posts Section -->
+    {% if featured_posts %}
+    <div class="section-header" id="featured-section">
+        <h2>⭐ Featured Activities</h2>
+    </div>
+    {% for post in featured_posts %}
+    <div class="content post-card" data-category="{{ post.category }}">
+        <div class="card featured">
+            <div class="card-header">
+                <span class="emoji">{{ post.emoji }}</span>
+                <div class="badges">
+                    <span class="badge badge-featured">⭐ Featured</span>
+                    <a href="{{ url_for('category_page', category_name=post.category) }}" class="badge badge-category">{{ post.category }}</a>
+                </div>
+            </div>
+            <h2><a href="{{ url_for('activity_detail', post_id=post.id) }}">{{ post.title }}</a></h2>
+            <div class="card-meta">
+                <span>⏱️ {{ post.time_needed }}</span>
+                <span>📊 {{ post.difficulty }}</span>
+            </div>
+            <p class="text">{{ post.description }}</p>
+            
+            {% if post.tips %}
+            <div class="tips-section">
+                <p class="tips-title">💡 Pro Tips:</p>
+                <ul class="tips-list">
+                    {% for tip in post.tips %}
+                    <li>{{ tip }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <a href="{{ url_for('activity_detail', post_id=post.id) }}" class="read-more">Read More →</a>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- All Other Posts -->
+    <div class="section-header" id="more-section">
+        <h2>📚 More Activities</h2>
+    </div>
+    {% for post in posts %}
+    {# Skip featured posts to avoid duplication #}
+    {% if not post.featured %}
+    <div class="content post-card" data-category="{{ post.category }}">
+        <div class="card">
+            <div class="card-header">
+                <span class="emoji">{{ post.emoji }}</span>
+                <div class="badges">
+                    <a href="{{ url_for('category_page', category_name=post.category) }}" class="badge badge-category">{{ post.category }}</a>
+                    <span class="badge badge-difficulty">
+                        {%- if post.difficulty == "Easy" -%}
+                            🟢 Easy
+                        {%- elif post.difficulty == "Medium" -%}
+                            🟡 Medium
+                        {%- else -%}
+                            🔴 Hard
+                        {%- endif -%}
+                    </span>
+                </div>
+            </div>
+            <h2><a href="{{ url_for('activity_detail', post_id=post.id) }}">{{ loop.index }}. {{ post.title }}</a></h2>
+            <div class="card-meta">
+                <span>⏱️ {{ post.time_needed }}</span>
+                <span>🔢 Activity #{{ post.id }}</span>
+            </div>
+            <p class="text">{{ post.description }}</p>
+            
+            {% if post.tips and post.tips | length > 0 %}
+            <div class="tips-section">
+                <p class="tips-title">💡 Pro Tips ({{ post.tips | length }} tips):</p>
+                <ul class="tips-list">
+                    {% for tip in post.tips %}
+                    <li>
+                        {% if loop.first %}<strong>Start here:</strong> {% endif %}
+                        {{ tip }}
+                        {% if loop.last %} 🎉{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <a href="{{ url_for('activity_detail', post_id=post.id) }}" class="read-more">Read More →</a>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <!-- Dynamic message based on count -->
+    <div class="message-box">
+        {% if total_activities > 5 %}
+            <p>🎉 Wow! You have {{ total_activities }} activities to choose from. No excuses for being bored!</p>
+        {% else %}
+            <p>📝 More activities coming soon!</p>
+        {% endif %}
+    </div>
+
+    <!-- Fresh API Suggestions Section -->
+    {% if api_suggestions and api_suggestions | length > 0 %}
+    <div class="section-header">
+        <h2>🔄 Fresh Ideas (From the Internet!)</h2>
+        <p class="section-subtitle">These suggestions are fetched fresh from APIs each time you visit!</p>
+    </div>
+    
+    <div class="api-suggestions">
+        {% for suggestion in api_suggestions %}
+        <div class="api-card {{ suggestion.type }}">
+            {% if suggestion.type == "activity" %}
+                <div class="api-icon">🎲</div>
+                <div class="api-content">
+                    <span class="api-label">Random Activity</span>
+                    <p class="api-text">{{ suggestion.text }}</p>
+                    <div class="api-meta">
+                        <span class="api-tag">{{ suggestion.category }}</span>
+                        <span class="api-tag">👥 {{ suggestion.participants }} {% if suggestion.participants == 1 %}person{% else %}people{% endif %}</span>
+                        <span class="api-tag">💰 {{ suggestion.price }}</span>
+                    </div>
+                </div>
+            {% elif suggestion.type == "advice" %}
+                <div class="api-icon">💡</div>
+                <div class="api-content">
+                    <span class="api-label">Daily Advice #{{ suggestion.id }}</span>
+                    <p class="api-text">"{{ suggestion.text }}"</p>
+                </div>
+            {% elif suggestion.type == "quote" %}
+                <div class="api-icon">✨</div>
+                <div class="api-content">
+                    <span class="api-label">Inspirational Quote</span>
+                    <p class="api-text">"{{ suggestion.text }}"</p>
+                    <p class="api-author">— {{ suggestion.author }}</p>
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="refresh-hint">
+        <p>🔄 Refresh the page to get new suggestions!</p>
+    </div>
+    {% endif %}
+</div>
+
+<footer>
+    <p>&copy; {{ year }} Bored No More! | Built with Flask & Jinja2 | {{ posts | length }} activities</p>
+</footer>
+
+<script>
+    // Get all filter buttons and post cards
+    const filterButtons = document.querySelectorAll('.category-btn');
+    const postCards = document.querySelectorAll('.post-card');
+    const visibleCountEl = document.getElementById('visible-count');
+    const featuredSection = document.getElementById('featured-section');
+    const moreSection = document.getElementById('more-section');
+
+    // Add click event to each filter button
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            button.classList.add('active');
+
+            // Get the filter value
+            const filterValue = button.getAttribute('data-filter');
+
+            // Filter the posts
+            let visibleCount = 0;
+            let featuredVisible = 0;
+            let otherVisible = 0;
+
+            postCards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const isFeatured = card.querySelector('.card').classList.contains('featured');
+
+                if (filterValue === 'All' || category === filterValue) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.3s ease';
+                    visibleCount++;
+                    if (isFeatured) {
+                        featuredVisible++;
+                    } else {
+                        otherVisible++;
+                    }
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Update the visible count
+            visibleCountEl.textContent = visibleCount;
+
+            // Show/hide section headers based on visible posts
+            if (featuredSection) {
+                featuredSection.style.display = featuredVisible > 0 ? 'block' : 'none';
+            }
+            if (moreSection) {
+                moreSection.style.display = otherVisible > 0 ? 'block' : 'none';
+            }
+        });
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .post-card {
+        transition: all 0.3s ease;
+    }
+    
+    /* API Suggestions Styles */
+    .section-subtitle {
+        color: #888;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+    
+    .api-suggestions {
+        width: 600px;
+        margin: 20px auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .api-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+        animation: fadeIn 0.5s ease;
+    }
+    
+    .api-card:hover {
+        transform: translateX(5px);
+    }
+    
+    .api-card.activity {
+        border-left: 4px solid #4e89ae;
+    }
+    
+    .api-card.advice {
+        border-left: 4px solid #ffc107;
+    }
+    
+    .api-card.quote {
+        border-left: 4px solid #9c27b0;
+    }
+    
+    .api-icon {
+        font-size: 30px;
+        flex-shrink: 0;
+    }
+    
+    .api-content {
+        flex: 1;
+    }
+    
+    .api-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #888;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .api-text {
+        font-size: 16px;
+        color: #333;
+        margin: 8px 0;
+        line-height: 1.5;
+    }
+    
+    .api-author {
+        font-size: 13px;
+        color: #666;
+        font-style: italic;
+        margin: 0;
+    }
+    
+    .api-meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    
+    .api-tag {
+        background: #f0f0f0;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        color: #666;
+    }
+    
+    .refresh-hint {
+        text-align: center;
+        padding: 20px;
+        color: #888;
+        font-size: 14px;
+    }
+    
+    .refresh-hint p {
+        margin: 0;
+        padding: 10px 20px;
+        background: rgba(78, 137, 174, 0.1);
+        border-radius: 20px;
+        display: inline-block;
+    }
+    
+    @media (max-width: 768px) {
+        .api-suggestions {
+            width: 90%;
+        }
+    }
+    
+    /* Link styles */
+    .card h2 a {
+        color: #212121;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .card h2 a:hover {
+        color: #4e89ae;
+    }
+    
+    .badge-category {
+        text-decoration: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    .badge-category:hover {
+        opacity: 0.8;
+    }
+    
+    .read-more {
+        display: inline-block;
+        margin-top: 15px;
+        color: #4e89ae;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .read-more:hover {
+        color: #43658b;
+        transform: translateX(5px);
+    }
+    
+    .random-btn {
+        background: linear-gradient(135deg, #ff6b6b, #feca57) !important;
+        color: white !important;
+        border-color: transparent !important;
+    }
+    
+    .random-btn:hover {
+        transform: scale(1.05);
+    }
+    
+    a.category-btn {
+        text-decoration: none;
+    }
+</style>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }} - Bored No More!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="wrapper">
+    <div class="top">
+        <div class="title">
+            <h1>{{ post.emoji }} {{ post.title }}</h1>
+            <p class="subtitle">
+                <a href="{{ url_for('home') }}" class="back-link">← Back to All Activities</a>
+            </p>
+        </div>
+    </div>
+    
+    <div class="detail-content">
+        <div class="detail-card">
+            <div class="detail-header">
+                <span class="detail-emoji">{{ post.emoji }}</span>
+                <div class="detail-meta">
+                    <a href="{{ url_for('category_page', category_name=post.category) }}" class="badge badge-category">{{ post.category }}</a>
+                    <span class="badge badge-difficulty">
+                        {% if post.difficulty == "Easy" %}🟢{% elif post.difficulty == "Medium" %}🟡{% else %}🔴{% endif %} {{ post.difficulty }}
+                    </span>
+                    {% if post.featured %}
+                    <span class="badge badge-featured">⭐ Featured</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="detail-info">
+                <div class="info-item">
+                    <span class="info-icon">⏱️</span>
+                    <div>
+                        <span class="info-label">Time Needed</span>
+                        <span class="info-value">{{ post.time_needed }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">📊</span>
+                    <div>
+                        <span class="info-label">Difficulty</span>
+                        <span class="info-value">{{ post.difficulty }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">🏷️</span>
+                    <div>
+                        <span class="info-label">Category</span>
+                        <span class="info-value">{{ post.category }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-description">
+                <h2>About This Activity</h2>
+                <p>{{ post.description }}</p>
+            </div>
+            
+            {% if post.tips and post.tips | length > 0 %}
+            <div class="detail-tips">
+                <h2>💡 Pro Tips to Get Started</h2>
+                <ul class="tips-list-detail">
+                    {% for tip in post.tips %}
+                    <li>
+                        <span class="tip-number">{{ loop.index }}</span>
+                        <span class="tip-text">{{ tip }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <div class="detail-actions">
+                <a href="{{ url_for('random_activity') }}" class="btn btn-random">🎲 Try Something Random</a>
+                <a href="{{ url_for('category_page', category_name=post.category) }}" class="btn btn-category">More {{ post.category }} Activities</a>
+            </div>
+        </div>
+        
+        <!-- Related Activities -->
+        <div class="related-section">
+            <h2>You Might Also Like</h2>
+            <div class="related-cards">
+                {% for related in all_posts %}
+                {% if related.id != post.id and related.category == post.category %}
+                <a href="{{ url_for('activity_detail', post_id=related.id) }}" class="related-card">
+                    <span class="related-emoji">{{ related.emoji }}</span>
+                    <span class="related-title">{{ related.title }}</span>
+                </a>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; {{ year }} Bored No More! | <a href="{{ url_for('home') }}">Home</a></p>
+</footer>
+
+<style>
+    body {
+        background: #efeff3;
+        margin: 0;
+        font-family: 'Raleway', sans-serif;
+        padding-bottom: 80px;
+    }
+    
+    .wrapper { width: 100%; }
+    
+    .top {
+        background: linear-gradient(135deg, #4e89ae 0%, #43658b 100%);
+        padding: 40px 20px;
+        text-align: center;
+    }
+    
+    .title h1 {
+        color: white;
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+    
+    .back-link {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .back-link:hover { color: white; }
+    
+    .detail-content {
+        max-width: 700px;
+        margin: -30px auto 30px;
+        padding: 0 20px;
+    }
+    
+    .detail-card {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+    }
+    
+    .detail-emoji { font-size: 60px; }
+    
+    .detail-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
+    }
+    
+    .badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .badge-category { background: #4e89ae; color: white; }
+    .badge-difficulty { background: #f0f0f0; color: #666; }
+    .badge-featured { background: linear-gradient(135deg, #ffc107, #ff9800); color: #5a4a00; }
+    
+    .detail-info {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin-bottom: 25px;
+    }
+    
+    .info-item {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .info-icon { font-size: 24px; }
+    .info-label { display: block; font-size: 11px; color: #888; text-transform: uppercase; }
+    .info-value { display: block; font-size: 14px; color: #333; font-weight: 600; }
+    
+    .detail-description h2, .detail-tips h2 {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .detail-description p {
+        color: #555;
+        line-height: 1.8;
+        font-size: 15px;
+    }
+    
+    .detail-tips { margin-top: 25px; }
+    
+    .tips-list-detail {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .tips-list-detail li {
+        display: flex;
+        gap: 15px;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .tip-number {
+        width: 28px;
+        height: 28px;
+        background: #4e89ae;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    
+    .tip-text { color: #555; line-height: 1.6; }
+    
+    .detail-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-random {
+        background: linear-gradient(135deg, #ff6b6b, #feca57);
+        color: white;
+    }
+    
+    .btn-category {
+        background: #4e89ae;
+        color: white;
+    }
+    
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    
+    .related-section {
+        margin-top: 30px;
+    }
+    
+    .related-section h2 {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .related-cards {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .related-card {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .related-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    
+    .related-emoji { font-size: 24px; }
+    .related-title { color: #333; font-weight: 500; }
+    
+    footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: #43658b;
+        color: white;
+        text-align: center;
+        padding: 15px;
+    }
+    
+    footer a { color: rgba(255,255,255,0.8); }
+</style>
+</body>
+</html>

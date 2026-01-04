@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ category_name }} Activities - Bored No More!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="wrapper">
+    <div class="top">
+        <div class="title">
+            <h1>{{ category_name }} Activities</h1>
+            <p class="subtitle">
+                <a href="{{ url_for('home') }}" class="back-link">← Back to All Activities</a>
+                |
+                {{ posts | length }} activit{{ 'y' if posts | length == 1 else 'ies' }} found
+            </p>
+        </div>
+    </div>
+    
+    <!-- Category Navigation -->
+    <div class="categories">
+        <a href="{{ url_for('home') }}" class="category-btn">All</a>
+        {% for cat in categories %}
+        {% if cat != "All" %}
+        <a href="{{ url_for('category_page', category_name=cat) }}" class="category-btn {% if cat == category_name %}active{% endif %}">
+            {{ cat }}
+        </a>
+        {% endif %}
+        {% endfor %}
+        <a href="{{ url_for('random_activity') }}" class="category-btn random-btn">🎲 Random</a>
+    </div>
+    
+    {% if posts | length > 0 %}
+    <div class="category-grid">
+        {% for post in posts %}
+        <div class="content">
+            <div class="card {% if post.featured %}featured{% endif %}">
+                <div class="card-header">
+                    <span class="emoji">{{ post.emoji }}</span>
+                    <div class="badges">
+                        {% if post.featured %}
+                        <span class="badge badge-featured">⭐ Featured</span>
+                        {% endif %}
+                        <span class="badge badge-difficulty">
+                            {% if post.difficulty == "Easy" %}🟢{% elif post.difficulty == "Medium" %}🟡{% else %}🔴{% endif %} {{ post.difficulty }}
+                        </span>
+                    </div>
+                </div>
+                <h2><a href="{{ url_for('activity_detail', post_id=post.id) }}">{{ post.title }}</a></h2>
+                <div class="card-meta">
+                    <span>⏱️ {{ post.time_needed }}</span>
+                    <span>📊 {{ post.difficulty }}</span>
+                </div>
+                <p class="text">{{ post.description }}</p>
+                <a href="{{ url_for('activity_detail', post_id=post.id) }}" class="read-more">View Details →</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>😕 No activities found in this category.</p>
+        <a href="{{ url_for('home') }}" class="btn btn-primary">Browse All Activities</a>
+    </div>
+    {% endif %}
+</div>
+
+<footer>
+    <p>&copy; {{ year }} Bored No More! | <a href="{{ url_for('home') }}">Home</a></p>
+</footer>
+
+<style>
+    body {
+        background: #efeff3;
+        margin: 0;
+        font-family: 'Raleway', sans-serif;
+        padding-bottom: 80px;
+    }
+    
+    .wrapper { width: 100%; }
+    
+    .top {
+        background: linear-gradient(135deg, #4e89ae 0%, #43658b 100%);
+        padding: 40px 20px;
+        text-align: center;
+    }
+    
+    .title h1 { color: white; font-size: 32px; margin-bottom: 10px; }
+    .subtitle { color: rgba(255,255,255,0.8); font-size: 14px; }
+    .back-link { color: rgba(255,255,255,0.8); text-decoration: none; }
+    .back-link:hover { color: white; }
+    
+    .categories {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        padding: 25px 20px;
+        flex-wrap: wrap;
+    }
+    
+    .category-btn {
+        padding: 10px 20px;
+        background: white;
+        border: 2px solid #4e89ae;
+        border-radius: 25px;
+        color: #4e89ae;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .category-btn:hover, .category-btn.active {
+        background: #4e89ae;
+        color: white;
+    }
+    
+    .random-btn {
+        background: linear-gradient(135deg, #ff6b6b, #feca57) !important;
+        color: white !important;
+        border-color: transparent !important;
+    }
+    
+    .category-grid {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .content { margin-bottom: 20px; }
+    
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+    
+    .card.featured { border-left: 4px solid #ffc107; }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+    
+    .emoji { font-size: 40px; }
+    
+    .badges { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+    
+    .badge {
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .badge-featured { background: linear-gradient(135deg, #ffc107, #ff9800); color: #5a4a00; }
+    .badge-difficulty { background: #f0f0f0; color: #666; }
+    
+    .card h2 { font-size: 20px; margin-bottom: 10px; }
+    .card h2 a { color: #212121; text-decoration: none; }
+    .card h2 a:hover { color: #4e89ae; }
+    
+    .card-meta {
+        display: flex;
+        gap: 15px;
+        color: #888;
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+    
+    .text { color: #555; line-height: 1.7; font-size: 14px; }
+    
+    .read-more {
+        display: inline-block;
+        margin-top: 15px;
+        color: #4e89ae;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .read-more:hover { color: #43658b; }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+    
+    .empty-state p { font-size: 18px; margin-bottom: 20px; }
+    
+    .btn-primary {
+        display: inline-block;
+        padding: 12px 30px;
+        background: #4e89ae;
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: 600;
+    }
+    
+    footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: #43658b;
+        color: white;
+        text-align: center;
+        padding: 15px;
+    }
+    
+    footer a { color: rgba(255,255,255,0.8); }
+</style>
+</body>
+</html>

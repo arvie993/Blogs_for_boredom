@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Activity - Bored No More!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="wrapper">
+    <div class="top">
+        <div class="title">
+            <h1>🎲 Random Activity Generator</h1>
+            <p class="subtitle">
+                <a href="{{ url_for('home') }}" class="back-link">← Back to All Activities</a>
+            </p>
+        </div>
+    </div>
+    
+    <div class="random-content">
+        {% if activity %}
+        <div class="random-card">
+            <div class="random-icon">🎲</div>
+            <h2>Here's Something To Try!</h2>
+            <p class="random-activity">{{ activity.text }}</p>
+            
+            <div class="random-tags">
+                <span class="tag">📁 {{ activity.category }}</span>
+                <span class="tag">👥 {{ activity.participants }} person{% if activity.participants > 1 %}s{% endif %}</span>
+                <span class="tag">💰 {{ activity.price }}</span>
+            </div>
+            
+            {% if activity.link %}
+            <a href="{{ activity.link }}" target="_blank" class="external-link">Learn More →</a>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="random-card error">
+            <div class="random-icon">😕</div>
+            <h2>Oops!</h2>
+            <p>Couldn't fetch a random activity right now. Try again!</p>
+        </div>
+        {% endif %}
+        
+        <div class="random-actions">
+            <a href="{{ url_for('random_activity') }}" class="btn btn-refresh">🔄 Get Another One</a>
+            <a href="{{ url_for('home') }}" class="btn btn-home">🏠 Browse All Activities</a>
+        </div>
+        
+        <div class="random-tip">
+            <p>💡 <strong>Tip:</strong> Keep refreshing until you find something that excites you!</p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; {{ year }} Bored No More! | <a href="{{ url_for('home') }}">Home</a></p>
+</footer>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        font-family: 'Raleway', sans-serif;
+        min-height: 100vh;
+        padding-bottom: 80px;
+    }
+    
+    .wrapper { width: 100%; }
+    
+    .top {
+        padding: 40px 20px;
+        text-align: center;
+    }
+    
+    .title h1 { color: white; font-size: 32px; margin-bottom: 10px; }
+    .back-link { color: rgba(255,255,255,0.8); text-decoration: none; }
+    .back-link:hover { color: white; }
+    
+    .random-content {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .random-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        animation: popIn 0.5s ease;
+    }
+    
+    @keyframes popIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .random-icon {
+        font-size: 60px;
+        margin-bottom: 20px;
+        animation: bounce 1s ease infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .random-card h2 {
+        color: #333;
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .random-activity {
+        font-size: 24px;
+        color: #667eea;
+        font-weight: 600;
+        line-height: 1.4;
+        margin-bottom: 25px;
+    }
+    
+    .random-tags {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .tag {
+        background: #f0f0f0;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        color: #666;
+    }
+    
+    .external-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .random-card.error .random-activity {
+        color: #666;
+        font-size: 16px;
+    }
+    
+    .random-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        padding: 14px 28px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-refresh {
+        background: white;
+        color: #667eea;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .btn-home {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.5);
+    }
+    
+    .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    
+    .random-tip {
+        text-align: center;
+        margin-top: 30px;
+        color: rgba(255,255,255,0.9);
+        font-size: 14px;
+    }
+    
+    footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: rgba(0,0,0,0.2);
+        color: white;
+        text-align: center;
+        padding: 15px;
+    }
+    
+    footer a { color: rgba(255,255,255,0.8); }
+</style>
+</body>
+</html>
