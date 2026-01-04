@@ -146,6 +146,11 @@ This project showcases various Jinja2 templating features:
 | `/category/<name>` | Activities filtered by category |
 | `/random` | Random activity generator |
 
+## 👤 Author
+
+**arvie993**
+- GitHub: [@arvie993](https://github.com/arvie993)
+
 ## 🤝 Contributing
 
 Feel free to fork this project and submit pull requests!
